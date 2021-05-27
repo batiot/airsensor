@@ -16,21 +16,20 @@
 //secret store in config.h
 const char *ssid = WIFI_SSID;
 const char *password =  WIFI_PASSWORD;
-const char *firebaseProject = FIREBASE_PROJECT;
 const char *firebaseEmail = FIREBASE_EMAIL;
 const char *firebasePassword = FIREBASE_PASSWORD;
 
 
-const String gIdentityUrl( "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" );
-const String gIdentityUrlWithApiKey = gIdentityUrl +  FIREBASE_API_KEY;
+const String gIdentityBaseUrl( "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" );
+const String gIdentityUrlWithApiKey = gIdentityBaseUrl +  FIREBASE_API_KEY;
 const String httpsScheme("https://");
 const String firebaseAironeBaseUrl(".firebaseio.com/airone.json?auth=");
 const String firebaseAironeUrl = httpsScheme +FIREBASE_PROJECT + firebaseAironeBaseUrl;
 
 
 int co2;
-float temp, hum;
-uint16_t temperatureOffset = 0;
+int temp, hum;
+float temperatureOffset = 0;
 
 //////////////////////////////////////////////////////////////////////////
 // set SCD30 driver debug level (only NEEDED case of errors)            //
@@ -69,8 +68,12 @@ void setup() {
   }
 
 
-  airSensor.setAutoSelfCalibration(0);          // stop ASC as that is set automatically during airSensor.begin()
-  airSensor.setTemperatureOffset(temperatureOffset);
+  //airSensor.setAutoSelfCalibration(0);          // stop ASC as that is set automatically during airSensor.begin()
+    
+  if (!airSensor.setTemperatureOffset(temperatureOffset)) {
+    Serial.println(F("Could not set temperature offset"));
+  }
+  
   airSensor.setAmbientPressure(1018); //Current ambient pressure in mBar: 700 to 1200
 
   // Change number of seconds between measurements: 2 to 1800 (30 minutes)
@@ -95,8 +98,8 @@ void loop() {
     if (airSensor.dataAvailable())
     {
       co2 = airSensor.getCO2();
-      temp = airSensor.getTemperature();
-      hum = airSensor.getHumidity();
+      temp = round(airSensor.getTemperature());
+      hum = round(airSensor.getHumidity());
 
       StaticJsonDocument<200> bodyDoc;
       // StaticJsonObject allocates memory on the stack, it can be
@@ -129,7 +132,7 @@ void loop() {
       if (httpCode > 0) {
         // HTTP header has been send and Server response header has been handled
         Serial.printf("[HTTP] POST signInWithPassword... code: %d\n", httpCode);
-        if (httpCode == HTTP_CODE_OK) {
+        if (httpCode == HTTP_CODE_OK && co2!=0) {
           DynamicJsonDocument doc(2048);
           deserializeJson(doc, https.getStream());
           https.begin(*client, firebaseAironeUrl + doc["idToken"].as<String>()); //HTTP
