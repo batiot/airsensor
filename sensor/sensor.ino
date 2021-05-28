@@ -1,4 +1,3 @@
-
 /*
   **********************************************************************
          Connect to wifi and push airquality to firebase
@@ -70,9 +69,9 @@ void setup() {
 
   //airSensor.setAutoSelfCalibration(0);          // stop ASC as that is set automatically during airSensor.begin()
     
-  if (!airSensor.setTemperatureOffset(temperatureOffset)) {
-    Serial.println(F("Could not set temperature offset"));
-  }
+  //if (!airSensor.setTemperatureOffset(temperatureOffset)) {
+  //  Serial.println(F("Could not set temperature offset"));
+  //}
   
   airSensor.setAmbientPressure(1018); //Current ambient pressure in mBar: 700 to 1200
 
