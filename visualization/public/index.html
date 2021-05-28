@@ -119,14 +119,6 @@
           loadEl.textContent = `Firebase SDK loaded with ${features.join(
             ", "
           )}`;
-          // Set the configuration for your app
-          /** TODO: Replace with your project's config object
-          var config = {
-            apiKey: "AIzaSyBCZFCw37L98qqQptNhJuYD1lvgfn8Gucg",
-            authDomain: "maisonbatiot.firebaseapp.com",
-            databaseURL: "https://maisonbatiot.firebaseio.com",
-          };
-          firebase.initializeApp(config);*/
         } catch (e) {
           console.error(e);
           loadEl.textContent =

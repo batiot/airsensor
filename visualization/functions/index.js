@@ -32,7 +32,9 @@ exports.aggregateByHour = functions.pubsub
             hourlyAgregate.temp = Math.round(hourlyAgregate.temp/hourlyCount);
             console.log("End Run count:" +hourlyCount+
             " agregate", hourlyAgregate);
-            admin.database().ref("airone").push().set(hourlyAgregate);
+            if (hourlyCount>0) {
+              admin.database().ref("airone").push().set(hourlyAgregate);
+            }
           });
       return null;
     });
